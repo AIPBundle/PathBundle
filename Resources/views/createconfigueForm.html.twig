@@ -1,0 +1,72 @@
+{% extends "ClarolineCoreBundle:Workspace:layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link
+        rel='stylesheet'
+        type='text/css'
+        href='{{ asset('bundles/frontend/jquery/plugin/datepicker/css/datepicker.css') }}'
+    >
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% render controller('ClarolineCoreBundle:ResourceType:initPicker') %}
+    {{ tinymce_init() }}
+    <script
+        type="text/javascript"
+        src="{{ asset('bundles/frontend/jquery/plugin/datepicker/js/bootstrap-datepicker.js') }}">
+    </script>
+    <script
+        src='{{ asset('bundles/aipprofilage/js/create_form.js') }}'
+        type="text/javascript">
+    </script>
+{% endblock %}
+
+{% block section_content %}
+{% if type == 'create' %}
+    {% set typeText = 'Spécifier la tache' %}
+    {% set validationPath = path('claro_etape_configue', {'aggregateId': _resource.getId()}) %}
+{% else %}
+    {% set typeText = 'Edition ' %}
+    {% set validationPath = path('claro_etapeconfigue',{'etapeId': etape.getId()}) %}
+{% endif %}    
+
+<div>
+    {{
+        macros.breadcrumbs([
+           
+        ])
+    }}
+
+    <div>
+        {{ macros.flashBox() }}
+    </div>
+
+    <h3>
+        {% if type == 'create' %}
+            {{ typeText|trans({}, 'grillecompetence') }}
+        {% else %}
+            {{ typeText|trans({}, 'grillecompetence') }}
+        {% endif %}
+    </h3>
+    <br>
+    <form
+        class="form-horizontal"
+        action="{{ validationPath }}"
+        method="post" {{ form_enctype(form) }}
+        id="etapeconfigue-form"
+    >
+        {{ form_widget(form) }}
+
+        <div class="form-actions panel-footer">
+            <button type="submit" class="btn btn-primary">{{ 'ok'|trans({}, 'platform') }}</button>
+            <a href="{{ path('claro_etape_list', {'aggregateId': _resource.getId()}) }}">
+                <button  type="button" class="btn btn-default">{{ 'cancel'|trans({}, 'platform') }}</button>
+            </a>
+            
+        </div>
+    </form>
+</div>
+
+{% endblock %}

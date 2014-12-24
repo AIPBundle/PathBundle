@@ -1,0 +1,97 @@
+{% macro renderPager(pager, aggregate) %}
+    {{
+        pagerfanta(
+            pager,
+            'twitter_bootstrap_translated',
+            {
+                'proximity' : 1,
+                'routeName': 'claro_preference_voir',
+                'routeParams': {'aggregateId': aggregate.getId()}
+            }
+        )
+    }}
+{% endmacro %}
+
+{% from _self import renderPager %}
+
+{% extends "ClarolineCoreBundle:Workspace:layout.html.twig" %}
+
+{% block javascripts %}
+    {{ parent() }}
+   
+{% endblock %}
+
+{% block section_content %}
+
+
+<div>
+    
+   {{
+        macros.breadcrumbs([
+            {
+                'name': 'preference_list'|trans({}, 'preference'),
+                'href': path('claro_preference_list', {'aggregateId': _resource.getId()})
+            }
+            
+        ])
+    }}
+      <div>
+        {{ macros.flashBox() }}
+    </div>
+
+<div class="panel-body">
+    <h4>{{ 'resource'|trans({}, 'platform') }} : {{ _resource.getResourceNode().getName() }}</h4>
+    <br>
+
+   
+    
+
+    <br>
+ <div class="margin">
+        {% set nbPages = preference.getNbPages() %}
+
+        {% if nbPages > 1 %}
+            {{ renderPager(preference, _resource) }}
+        {% endif %}
+
+        
+        
+           <div class="table-responsive">
+            <table  class="table table-striped table-bordered table-condensed" id="group-table">
+            <thead>
+                    <tr>
+                        
+                        <th> Nom de l'apprenant </th>
+                        <th>Préférence de l'apprenant</th>
+                        <th>Titre de l'apprenant</th>
+                      
+                    </tr>
+                </thead>
+                 <tbody id="group-table-body">
+                 {% for preference in preference %}
+                 <tr>
+                 <td>
+                 {% set creator = preference.getCreator() %}
+                  {{ creator.getFirstName() }} {{ creator.getLastName() }}
+                 </td>
+                 <td>
+                  {{ preference.getType()|raw }}
+                 </td>
+                 <td>
+                  {{ preference.getTitre()|raw }}
+                 </td>
+                 </tr>
+                 {% endfor %}
+                 </tbody>
+            </table>
+
+        {% if nbPages > 1 %}
+            {{ renderPager(preference, _resource) }}
+        {% endif %}
+    </div>
+</div>
+
+
+
+
+{% endblock %}

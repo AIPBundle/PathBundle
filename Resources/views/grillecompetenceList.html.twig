@@ -1,0 +1,249 @@
+{% macro renderPager(pager, aggregate) %}
+    {{
+        pagerfanta(
+            pager,
+            'twitter_bootstrap_translated',
+            {
+                'proximity' : 1,
+                'routeName': 'claro_grillecompetence_list',
+                'routeParams': {'aggregateId': aggregate.getId()}
+            }
+        )
+    }}
+{% endmacro %}
+
+{% from _self import renderPager %}
+
+{% extends "ClarolineCoreBundle:Workspace:layout.html.twig" %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script
+        src='{{ asset('bundles/aipprofilage/js/grillecompetence_list.js') }}'
+        type="text/javascript"
+    >
+    </script>
+{% endblock %}
+
+{% block section_content %}
+<div>
+    {{
+        macros.breadcrumbs([
+            {
+                'name': 'cycledeviecompetence_list_cycle'|trans({}, 'cycledeviecompetence'),
+                'href': path('claro_cycledeviecompetence_list', {'aggregateId': _resource.getId()})
+            },
+            {
+                'name': 'grillecompetence_list'|trans({}, 'grillecompetence'),
+                'href': '#'
+            },
+            {
+                'name': 'ensemblecompetence_list_cycle'|trans({}, 'ensemblecompetence'),
+                'href': path('claro_ensemblecompetence_list', {'aggregateId': _resource.getId()})
+            }
+        ])
+    }}
+
+    <div>
+        {{ macros.flashBox() }}
+    </div>
+<div class="panel-body">
+    <h4>{{ 'resource'|trans({}, 'platform') }} : {{ _resource.getResourceNode().getName() }}</h4>
+    <br>
+
+    {% if is_granted('EDIT', resourceCollection) %}
+    <div>
+
+       
+        
+       
+        <a  href="{{ path('claro_cycledeviecompetence_create_form', {'aggregateId': _resource.getId()}) }}">
+            <button class="btn btn-primary">
+             <i class="icon-file">
+                </i> 
+                {{ 'create_new_cycledevie_gerer'|trans({}, 'cycledeviecompetence') }}
+            </button>
+        </a>
+        <br>
+        <br>
+        <a  href="{{ path('claro_ensemblecompetence_create_form', {'aggregateId': _resource.getId()}) }}">
+            <button class="btn btn-primary">
+               <i class="icon-file">
+                </i> 
+                {{ 'create_new_ensemble_gerer'|trans({}, 'ensemblecompetence') }}
+            </button>
+        </a>
+        <br>
+         <br>
+         {% for enablegrille in enablegrille %}
+         {% set enable = enablegrille.isEnable() %}
+         {% if enable == false %}
+        <a href="{{ path('claro_grillecompetence_create_form', {'aggregateId': _resource.getId()}) }}">
+            <button class="btn btn-primary"  >
+              <i class="icon-plus" disabled = true>
+                </i> 
+                {{ 'create_new_grillecompetence'|trans({}, 'grillecompetence') }}
+            </button>
+        </a>
+        {% else %}
+        <a href="{{ path('claro_grillecompetence_create_form', {'aggregateId': _resource.getId()}) }}">
+            <button class="btn btn-primary"   >
+              <i class="icon-plus">
+                </i> 
+                {{ 'create_new_grillecompetence'|trans({}, 'grillecompetence') }}
+            </button>
+        </a>
+       {% endif %}
+         
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <br>
+ <div class="margin">
+        {% set nbPages = grillecompetence.getNbPages() %}
+
+        {% if nbPages > 1 %}
+            {{ renderPager(grillecompetence, _resource) }}
+        {% endif %}
+
+        {% for grillecompetence in grillecompetence %}
+        <div class="panel
+            {% if grillecompetence.isVisible() %}
+                panel-primary
+            {% else %}
+                panel-danger
+            {% endif %}"
+         >
+            <div class="pull-right">
+                {% if is_granted('EDIT', resourceCollection) %}
+                    <a href="{{ path('claro_grillecompetence_edit_form', {'grillecompetenceId': grillecompetence.getId()}) }}">
+                        <button type="button" class="btn btn-default">
+                            <i class="icon-edit"></i>
+                        </button>
+                    </a>
+                    <button
+                        type="button"
+                        class="grillecompetence-delete-button btn btn-default"
+                        btn-grillecompetence-id="{{ grillecompetence.getId() }}"
+                    >
+                        &times;
+                    </button>
+                {% endif %}
+            </div>
+            {% set titre = grillecompetence.getTitre() %}
+
+            {% if titre is not null %}
+            <div class="panel-heading">
+                <b>{{ titre }}</b>
+            </div>
+            {% endif %}
+
+            <div class="panel-body">
+ {% set createurdegrille = grillecompetence.getCreateurdegrille() %}
+
+                {% if createurdegrille is not null %}
+                    <b>{{ createurdegrille }} :</b>
+                    <div class="well well-sm">
+                {% endif %}
+
+                {{ grillecompetence.getDescription()|raw }}
+
+                {% if createurdegrille is not null %}
+                    </div>
+                {% endif %}
+                {% set cycledevie = grillecompetence.getCycledevie() %}
+
+                {% if cycledevie is not null %}
+                    <b> Titre du cycle de vie de la competence {{  titre }}:</b>
+                    <div class="well well-sm">
+                {% endif %}
+
+                {{ grillecompetence.getCycledevie()|raw }}
+
+                {% if cycledevie is not null %}
+                    </div>
+                    <b> Titre du l'ensemble de definitions de la competence {{  titre }}:</b>
+                    <div class="well well-sm">
+                    {{ grillecompetence.getEnsembledef()|raw }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="panel-footer">
+                {% if (is_granted('EDIT', resourceCollection) or is_granted('DELETE', resourceCollection)) %}
+                <div>
+                    <small>
+                        {% set creator = grillecompetence.getCreator() %}
+                        {{ 'created_on'|trans({}, 'grillecompetence') }}
+                        {{ grillecompetence.getCreationDate().format('d-m-Y') }}
+                        {{ 'at'|trans({}, 'grillecompetence') }}
+                        {{ grillecompetence.getCreationDate().format('H:i:s') }},
+                        {{ 'by'|trans({}, 'grillecompetence') }}
+                        {{ creator.getFirstName() }}
+                        {{ creator.getLastName() }}
+                    </small>
+                </div>
+                {% endif %}
+
+                {% set publicationDate = grillecompetence.getPublicationDate() %}
+                {% set visibleFrom = grillecompetence.getVisibleFrom() %}
+                {% set visibleUntil = grillecompetence.getVisibleUntil() %}
+
+                {% if publicationDate is not null %}
+                    <div>
+                        <small>
+                            {{ 'published_on'|trans({}, 'grillecompetence') }}
+                            {{ publicationDate.format('d-m-Y') }}
+                            {% if (is_granted('EDIT', resourceCollection) or is_granted('DELETE', resourceCollection)) %}
+                            <span>
+                                <b>
+                                [
+                                {% if visibleFrom is not null %}
+                                    {{ visibleFrom.format('d-m-Y') }}
+                                {% else %}
+                                    ?
+                                {% endif %}
+                                &rarr;
+                                {% if visibleUntil is not null %}
+                                    {{ visibleUntil.format('d-m-Y') }}
+                                {% else %}
+                                    ?
+                                {% endif %}
+                                ]
+                                </b>
+                            </span>
+                            {% endif %}
+                        </small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if nbPages > 1 %}
+            {{ renderPager(grillecompetence, _resource) }}
+        {% endif %}
+    </div>
+</div>
+
+
+<div id="delete-grillecompetence-validation-box" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h3>{{ 'grillecompetence_delete_confirm_title'|trans({}, 'grillecompetence') }}</h3>
+            </div>
+            <div class="modal-body">
+                <p>{{ 'grillecompetencet_delete_confirm_message'|trans({}, 'grillecompetence') }}</p>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="delete-confirm-ok" class="btn btn-primary" value="{{ 'ok'|trans({}, 'platform') }}"/>
+                <input type="button" class="btn btn-default" data-dismiss="modal" value="{{ 'cancel'|trans({}, 'platform') }}"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

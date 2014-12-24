@@ -1,0 +1,77 @@
+{% macro renderPager(pager) %}
+    {{
+        pagerfanta(
+            pager,
+            'twitter_bootstrap_translated',
+            {
+                'proximity' : 1,
+                'routeName': 'claro_desktop_grillecompetence_pager'
+            }
+        )
+    }}
+{% endmacro %}
+
+{% from _self import renderPager %}
+
+{% block javascripts %}
+    <script
+        src='{{ asset('bundles/aipprofilage/js/desktop_widget.js') }}'
+        type="text/javascript"
+    >
+    </script>
+{% endblock %}
+
+{% set nbgrillecompetence = datas|length %}
+
+{% if nbgrillecompetence > 0 %}
+    {% set nbPages = datas.getNbPages() %}
+
+    <div id="desktop-widget-pager">
+
+        {% if nbPages > 1 %}
+            {{ renderPager(datas) }}
+        {% endif %}
+        <ul class="list-group">
+
+           {% for data in datas %}
+                <li class="list-group-item">
+                    {% set titre = data['grillecompetence'].getTitre() %}
+
+                    {% if titre is not null %}
+                        <h4 class="list-group-item-heading"><b>{{ titre }}</b></h4>
+                    {% endif %}
+                    <div class="list-group-item-text">
+                        {{ data['grillecompetence'].getDescription()|raw }}
+                    </div>
+
+                    <div class="list-group-item-text text-muted">
+                        <small>
+                            {{ 'published_on'|trans({}, 'grillecompetence ') }}
+                            {{ data['grillecompetence'].getPublicationDate().format('d-m-Y') }}
+                            {{ 'in_workspace'|trans({}, 'widget') }}
+                            <a href="{{
+                                path('claro_workspace_open',
+                                {'workspaceId': data['workspaceId'], 'toolName': 'home'})
+                            }}">
+                                {{ data['workspaceName'] }}
+                                <span class="workspace-code">({{ data['workspaceCode'] }})</span>
+                            </a>
+                            {% set createurdegrille = data['grillecompetence'].getCreateurdegrille() %}
+
+                            {% if createurdegrille is not null %}
+                                {{ 'by'|trans({}, 'grillecompetence') }}
+                                <b>{{ createurdegrille }}</b>
+                            {% endif %}
+                        </small>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+
+        {% if nbPages > 1 %}
+            {{ renderPager(datas) }}
+        {% endif %}
+    </div>
+{% else %}
+    {{ 'no_grillecompetence_widget_message'|trans({}, 'widget') }}
+{% endif %}

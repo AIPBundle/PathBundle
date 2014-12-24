@@ -1,0 +1,97 @@
+{% extends "ClarolineCoreBundle:Workspace:layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link
+        rel='stylesheet'
+        type='text/css'
+        href='{{ asset('bundles/frontend/jquery/plugin/datepicker/css/datepicker.css') }}'
+    >
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    
+    <script type="text/javascript">
+    var manager = window.Claroline.ResourceManager;
+    var modal = window.Claroline.Modal;
+    var routing =  window.Routing;
+    function foo(callBack)
+    {
+        if ($('#resourcePicker').get(0) === undefined) {
+            $('body').append('<div id="resourcePicker"></div>');
+            $.ajax(routing.generate('claro_resource_init'))
+                .done(function (data) {
+                    var resourceInit = JSON.parse(data);
+                    resourceInit.parentElement = $('#resourcePicker');
+                    resourceInit.isPickerMultiSelectAllowed = false;
+                    resourceInit.isPickerOnly = true;
+                    resourceInit.pickerCallback = callBack;
+                    manager.initialize(resourceInit);
+                    manager.picker('open');
+                })
+                .error(function () {
+                    modal.error();
+                });
+        } else {
+            manager.picker('open');
+        }
+        alert('bonjour')
+    }
+    
+    </script>
+    
+{% endblock %}
+
+{% block section_content %}
+
+{% if type == 'create' %}
+    {% set typeText = 'tache_creation' %}
+    {% set validationPath = path('claro_etape_create', {'aggregateId': _resource.getId()}) %}
+{% else %}
+    {% set typeText = 'tache_edition' %}
+    {% set validationPath = path('claro_etape_edit',{'etapeId':etape.getId()}) %}
+{% endif %}    
+<div>
+    {{
+        macros.breadcrumbs([
+            {
+                'name': 'parcours_list'|trans({}, 'parcours'),
+                'href': path('claro_etape_list', {'aggregateId': _resource.getId()})
+            }
+            
+        ])
+    }}
+
+    <div>
+        {{ macros.flashBox() }}
+    </div>
+
+    <h3>
+        {% if type == 'create' %}
+            {{ typeText|trans({}, 'parcours') }}
+        {% else %}
+            {{ typeText|trans({}, 'parcours') }}
+        {% endif %}
+    </h3>
+    <br>
+    
+    <form
+        class="form-horizontal"
+        action="{{ validationPath }}"
+        method="post" {{ form_enctype(form) }}
+        id="parcours-form"
+    >
+        {{ form_widget(form) }}
+        
+   
+        <div class="form-actions panel-footer">
+            <button type="submit" class="btn btn-primary">{{ 'specifier'|trans({}, 'parcours') }}</button>
+            <a href="{{ path('claro_etape_list', {'aggregateId': _resource.getId()}) }}">
+                <button  type="button" class="btn btn-default">{{ 'cancel'|trans({}, 'platform') }}</button>
+            </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

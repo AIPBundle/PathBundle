@@ -1,0 +1,24 @@
+plugin:
+    has_options: false
+    icon: res_parcours.png
+    icon: grillecompetence.png
+    icon: preference.png
+    resources:
+        - class: Aip\ProfilageBundle\Entity\GrilleCompetenceAggregate
+        name:  claroline_profilage
+        icon: grillecompetence.png
+        - class: Aip\ProfilageBundle\Entity\PreferenceAggregate
+        name:  claroline_preference
+        icon: preference.png
+        - class: Aip\ProfilageBundle\Entity\Parcours
+        name:  aip_parcours
+        actions:
+          # The name of the action is the translation key that will be used to display
+          #  the action in the list of available actions for your resource.
+          #  The name will be passed to you by the Event manager.
+        - name: modify
+          menu_name: specification
+    widgets:
+    - name: claroline_grillecompetence_widget
+      is_configurable: false        
+        

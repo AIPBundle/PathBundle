@@ -1,0 +1,17 @@
+HelloTheWorld:
+    path:     /hello-world
+    defaults: { _controller: AipProfilageBundle:AipProfilage:file }
+HelloAjouter:
+    path:     /ajouter
+    defaults: { _controller: AipProfilageBundle:AipProfilage:ajouter }
+parcours:
+    path:     /parcours
+    defaults: { _controller: AipProfilageBundle:AipProfilage:parcours }
+parcours:
+    path:     /game
+    defaults: { _controller: AipProfilageBundle:AipProfilage:game }
+claro_aipprofilage_bundle:
+    resource: "@AipProfilageBundle/Controller/"
+    type:     annotation
+    prefix:   /
+   

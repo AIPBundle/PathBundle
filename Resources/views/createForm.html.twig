@@ -1,0 +1,86 @@
+{% extends "ClarolineCoreBundle:Workspace:layout.html.twig" %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link
+        rel='stylesheet'
+        type='text/css'
+        href='{{ asset('bundles/frontend/jquery/plugin/datepicker/css/datepicker.css') }}'
+    >
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% render controller('ClarolineCoreBundle:ResourceType:initPicker') %}
+    {{ tinymce_init() }}
+    <script
+        type="text/javascript"
+        src="{{ asset('bundles/frontend/jquery/plugin/datepicker/js/bootstrap-datepicker.js') }}">
+    </script>
+    <script
+        src='{{ asset('bundles/aipprofilage/js/create_form.js') }}'
+        type="text/javascript">
+    </script>
+{% endblock %}
+
+{% block section_content %}
+{% if type == 'create' %}
+    {% set typeText = 'grillecompetence_creation' %}
+    {% set validationPath = path('claro_grillecompetence_create', {'aggregateId': _resource.getId()}) %}
+{% else %}
+    {% set typeText = 'grillecompetence_edition' %}
+    {% set validationPath = path('claro_grillecompetence_edit',{'grillecompetenceId':grillecompetence.getId()}) %}
+{% endif %}
+
+<div>
+    {{
+        macros.breadcrumbs([
+            {
+                'name': 'grillecompetence_list'|trans({}, 'grillecompetence'),
+                'href': path('claro_grillecompetence_list', {'aggregateId': _resource.getId()})
+            },
+            {
+                'name': typeText|trans({}, 'grillecompetence'),
+                'href': '#'
+            },
+            {
+                'name': 'cycledeviecompetence_list_cycle'|trans({}, 'cycledeviecompetence'),
+                'href': path('claro_cycledeviecompetence_list', {'aggregateId': _resource.getId()})
+            },
+            {
+                'name': 'ensemblecompetence_list_cycle'|trans({}, 'ensemblecompetence'),
+                'href': path('claro_ensemblecompetence_list', {'aggregateId': _resource.getId()})
+            }
+        ])
+    }}
+
+    <div>
+        {{ macros.flashBox() }}
+    </div>
+
+    <h3>
+        {% if type == 'create' %}
+            {{ typeText|trans({}, 'grillecompetence') }}
+        {% else %}
+            {{ typeText|trans({}, 'grillecompetence') }}
+        {% endif %}
+    </h3>
+    <br>
+    <form
+        class="form-horizontal"
+        action="{{ validationPath }}"
+        method="post" {{ form_enctype(form) }}
+        id="grillecompetence-form"
+    >
+        {{ form_widget(form) }}
+
+        <div class="form-actions panel-footer">
+            <button type="submit" class="btn btn-primary">{{ 'ok'|trans({}, 'platform') }}</button>
+            <a href="{{ path('claro_grillecompetence_list', {'aggregateId': _resource.getId()}) }}">
+                <button  type="button" class="btn btn-default">{{ 'cancel'|trans({}, 'platform') }}</button>
+            </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

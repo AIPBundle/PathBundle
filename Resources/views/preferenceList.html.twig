@@ -1,0 +1,177 @@
+{% macro renderPager(pager, aggregate) %}
+    {{
+        pagerfanta(
+            pager,
+            'twitter_bootstrap_translated',
+            {
+                'proximity' : 1,
+                'routeName': 'claro_preference_list',
+                'routeParams': {'aggregateId': aggregate.getId()}
+            }
+        )
+    }}
+{% endmacro %}
+
+{% from _self import renderPager %}
+
+{% extends "ClarolineCoreBundle:Workspace:layout.html.twig" %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script
+        src='{{ asset('bundles/aipprofilage/js/preference_list.js') }}'
+        type="text/javascript"
+    >
+    </script>
+{% endblock %}
+
+{% block section_content %}
+
+
+<div>
+    
+   {{
+        macros.breadcrumbs([
+            {
+                'name': 'preference_list'|trans({}, 'preference'),
+                'href': path('claro_preference_list', {'aggregateId': _resource.getId()})
+            }
+            
+        ])
+    }}
+      <div>
+        {{ macros.flashBox() }}
+    </div>
+
+<div class="panel-body">
+    <h4>{{ 'resource'|trans({}, 'platform') }} : {{ _resource.getResourceNode().getName() }}</h4>
+    <br>
+
+   {% if (is_granted('EDIT', resourceCollection)or is_granted('modify', resourceCollection))%}
+    <div>
+        
+        <a class="list-group-item" href="{{ path('claro_preference_create_form', {'aggregateId': _resource.getId()}) }}">
+           <button class="btn btn-primary">
+                <i class="icon-plus">
+                </i> 
+                {{ 'create_new_preference'|trans({}, 'preference') }}
+            </button>
+        </a>
+        
+    </div>
+    {% endif %}
+    {% if is_granted('EDIT', resourceCollection) %}
+    <a class="list-group-item" href="{{ path('claro_preference_voir', {'aggregateId': _resource.getId()}) }}">
+           <button class="btn btn-primary">
+                
+                {{ 'preference_voir'|trans({}, 'preference') }}
+            </button>
+        </a>
+    {% endif %}
+ 
+
+    <br>
+ <div class="margin">
+        {% set nbPages = preference.getNbPages() %}
+
+        {% if nbPages > 1 %}
+            {{ renderPager(preference, _resource) }}
+        {% endif %}
+
+        {% for preference in preference %}
+        <div class="panel
+            {% if preference is not null %}
+                panel-primary
+            {% else %}
+                panel-danger
+            {% endif %}"
+         >
+            <div class="pull-right">
+                {% if is_granted('EDIT', resourceCollection) %}
+                    
+                    <a href="{{ path('claro_preference_edit_form', {'preferenceId': preference.getId()}) }}">
+                        <button type="button" class="btn btn-default">
+                            <i class="icon-edit"></i>
+                        </button>
+                    </a>
+                    <button
+                        type="button"
+                        class="preference-delete-button btn btn-default"
+                        btn-preference-id="{{ preference.getId() }}"
+                    >
+                        &times;
+                    </button>
+                    
+                {% endif %}
+            </div>
+            {% set titre = preference.getTitre() %}
+
+            {% if titre is not null %}
+            <div class="panel-heading">
+                <b>{{ titre }}</b>
+            </div>
+            {% endif %}
+
+            <div class="panel-body">
+              
+              {{ preference.getType()|raw }}
+
+            </div>
+
+            <div class="panel-footer">
+                {% if (is_granted('EDIT', resourceCollection) or is_granted('DELETE', resourceCollection)or is_granted('modify', resourceCollection)) %}
+                <div>
+                    <small>
+                        {% set creator = preference.getCreator() %}
+                        {{ 'created_on'|trans({}, 'preference') }}
+                        {{ preference.getCreationDate().format('d-m-Y') }}
+                        {{ 'at'|trans({}, 'preference') }}
+                        {{ preference.getCreationDate().format('H:i:s') }},
+                        {{ 'by'|trans({}, 'preference') }}
+                        {{ creator.getFirstName() }}
+                        {{ creator.getLastName() }}
+                    </small>
+                </div>
+                {% endif %}
+                {% set publicationDate = preference.getPublicationDate() %}
+                {% if publicationDate is not null %}
+                    <div>
+                        <small>
+                            {{ 'published_on'|trans({}, 'preference') }}
+                            {{ publicationDate.format('d-m-Y') }}
+                            {% if (is_granted('EDIT', resourceCollection) or is_granted('DELETE', resourceCollection)) %}
+                            
+                            {% endif %}
+                        </small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if nbPages > 1 %}
+            {{ renderPager(preference, _resource) }}
+        {% endif %}
+    </div>
+</div>
+
+
+<div id="delete-preference-validation-box" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h3>{{ 'preference_delete_confirm_title'|trans({}, 'preference') }}</h3>
+            </div>
+            <div class="modal-body">
+                <p>{{ 'preference_delete_confirm_message'|trans({}, 'preference') }}</p>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="delete-confirm-ok" class="btn btn-primary" value="{{ 'ok'|trans({}, 'platform') }}"/>
+                <input type="button" class="btn btn-default" data-dismiss="modal" value="{{ 'cancel'|trans({}, 'platform') }}"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

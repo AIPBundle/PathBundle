@@ -1,0 +1,170 @@
+{% macro renderPager(pager, aggregate) %}
+    {{
+        pagerfanta(
+            pager,
+            'twitter_bootstrap_translated',
+            {
+                'proximity' : 1,
+                'routeName': 'claro_ensemblecompetence_list',
+                'routeParams': {'aggregateId': aggregate.getId()}
+            }
+        )
+    }}
+{% endmacro %}
+
+{% from _self import renderPager %}
+
+{% extends "ClarolineCoreBundle:Workspace:layout.html.twig" %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script
+        src='{{ asset('bundles/aipprofilage/js/ensemblecompetence_list.js') }}'
+        type="text/javascript"
+    >
+    </script>
+{% endblock %}
+
+{% block section_content %}
+
+
+<div>
+    
+   {{
+        macros.breadcrumbs([
+            {
+                'name': 'grillecompetence_list'|trans({}, 'grillecompetence'),
+                'href': path('claro_grillecompetence_list', {'aggregateId': _resource.getId()})
+            }, 
+            {
+                'name': 'ensemblecompetence_listcycle_ensemble'|trans({}, 'ensemblecompetence'),
+                'href': path('claro_cycledeviecompetence_list', {'aggregateId': _resource.getId()})
+            }
+        ])
+    }}
+      <div>
+        {{ macros.flashBox() }}
+    </div>
+
+<div class="panel-body">
+    <h4>{{ 'resource'|trans({}, 'platform') }} : {{ _resource.getResourceNode().getName() }}</h4>
+    <br>
+
+   {% if is_granted('EDIT', resourceCollection) %}
+    <div>
+        
+        <a class="list-group-item" href="{{ path('claro_ensemblecompetence_create_form', {'aggregateId': _resource.getId()}) }}">
+            <button class="btn btn-primary">
+            <i class="icon-plus">
+                </i> 
+                {{ 'create_new_ensemble'|trans({}, 'ensemblecompetence') }}
+            </button>
+        </a>
+    </div>
+    {% endif %}
+ 
+
+    <br>
+ <div class="margin">
+        {% set nbPages = ensemblecompetence.getNbPages() %}
+
+        {% if nbPages > 1 %}
+            {{ renderPager(ensemblecompetence, _resource) }}
+        {% endif %}
+
+         {% for ensemblecompetence in ensemblecompetence %}
+        <div class="panel
+            {% if ensemblecompetence is not null %}
+                panel-primary
+            {% else %}
+                panel-danger
+            {% endif %}"
+         >
+            <div class="pull-right">
+                {% if is_granted('EDIT', resourceCollection) %}
+                    
+                    <a href="{{ path('claro_ensemblecompetence_edit_form', {'ensemblecompetenceId': ensemblecompetence.getId()}) }}">
+                        <button type="button" class="btn btn-default">
+                            <i class="icon-edit"></i>
+                        </button>
+                    </a>
+                    <button
+                        type="button"
+                        class="ensemblecompetence-delete-button btn btn-default"
+                        btn-ensemblecompetence-id="{{ ensemblecompetence.getId() }}"
+                    >
+                        &times;
+                    </button>
+                {% endif %}
+            </div>
+            {% set titreens = ensemblecompetence.getTitreens() %}
+
+            {% if titreens is not null %}
+            <div class="panel-heading">
+                <b>{{ titreens }}</b>
+            </div>
+            {% endif %}
+
+            <div class="panel-body">
+                    {{ ensemblecompetence.getDefens()|raw }}
+               
+
+            </div>
+
+            <div class="panel-footer">
+                {% if (is_granted('EDIT', resourceCollection) or is_granted('DELETE', resourceCollection)) %}
+                <div>
+                    <small>
+                        {% set creator = ensemblecompetence.getCreator() %}
+                        {{ 'created_on'|trans({}, 'ensemblecompetence') }}
+                        {{ ensemblecompetence.getCreationDate().format('d-m-Y') }}
+                        {{ 'at'|trans({}, 'ensemblecompetence') }}
+                        {{ ensemblecompetence.getCreationDate().format('H:i:s') }},
+                        {{ 'by'|trans({}, 'ensemblecompetence') }}
+                        {{ creator.getFirstName() }}
+                        {{ creator.getLastName() }}
+                    </small>
+                </div>
+                {% endif %}
+                {% set publicationDate = ensemblecompetence.getPublicationDate() %}
+                {% if publicationDate is not null %}
+                    <div>
+                        <small>
+                            {{ 'published_on'|trans({}, 'ensemblecompetence') }}
+                            {{ publicationDate.format('d-m-Y') }}
+                            {% if (is_granted('EDIT', resourceCollection) or is_granted('DELETE', resourceCollection)) %}
+                            
+                            {% endif %}
+                        </small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if nbPages > 1 %}
+            {{ renderPager(ensemblecompetence, _resource) }}
+        {% endif %}
+    </div>
+</div>
+
+
+<div id="delete-ensemblecompetence-validation-box" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h3>{{ 'ensemblecompetence_delete_confirm_title'|trans({}, 'ensemblecompetence') }}</h3>
+            </div>
+            <div class="modal-body">
+                <p>{{ 'ensemblecompetencet_delete_confirm_message'|trans({}, 'ensemblecompetence') }}</p>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="delete-confirm-ok" class="btn btn-primary" value="{{ 'ok'|trans({}, 'platform') }}"/>
+                <input type="button" class="btn btn-default" data-dismiss="modal" value="{{ 'cancel'|trans({}, 'platform') }}"/>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
